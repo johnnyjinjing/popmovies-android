@@ -8,7 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,11 +17,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class MoviesFragment extends Fragment {
 
-    private TextView textView;
+//    private TextView textView;
+    private final String LOG_TAG = MoviesFragment.class.getSimpleName();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,7 +37,17 @@ public class MoviesFragment extends Fragment {
         GetMoviesTask getMoviesTask = new GetMoviesTask();
         getMoviesTask.execute();
 
-        textView = (TextView) rootView.findViewById(R.id.textView);
+//        textView = (TextView) rootView.findViewById(R.id.textView);
+
+        String[] array = {"test1", "test2", "test3", "test4", "test5"};
+        List<String> myStringArray = new ArrayList<String>(Arrays.asList(array));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.grid_item_poster, R.id.grid_item_poster_textview, myStringArray);
+
+        Log.d(LOG_TAG, myStringArray.toString());
+
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
+        gridView.setAdapter(adapter);
 
 //        ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
 
@@ -117,7 +132,7 @@ public class MoviesFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
-            textView.setText(result);
+//            textView.setText(result);
         }
     }
 }
