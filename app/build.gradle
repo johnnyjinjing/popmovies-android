@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+// API key is stored as a global gradle property
+def THE_MOVIE_DB_API_KEY = '"' + TheMovieDBAPIKey + '"' ?: '"Missing The Movie DB API Key"';
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
@@ -12,10 +15,18 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        // Use BuildConfig.THE_MOVIE_DB_API_KEY to access the API key
+        all {
+            buildConfigField 'String', 'THE_MOVIE_DB_API_KEY', THE_MOVIE_DB_API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    // Add TheMovieDB API key
+    buildTypes.each {
+        it.buildConfigField 'String', 'THE_MOVIE_DB_API_KEY', TheMovieDBAPIKey
     }
 }
 
