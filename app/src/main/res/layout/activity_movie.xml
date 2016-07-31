@@ -9,7 +9,7 @@
     android:orientation="vertical">
 
 
-    <fragment android:name="com.johnnyjinjing.popmovies.MoviesFragment"
+    <fragment android:name="com.johnnyjinjing.popmovies.MovieFragment"
         android:id="@+id/movies_fragment"
         android:layout_weight="1"
         android:layout_width="match_parent"

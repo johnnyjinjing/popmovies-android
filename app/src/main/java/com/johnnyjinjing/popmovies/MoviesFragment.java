@@ -1,5 +1,6 @@
 package com.johnnyjinjing.popmovies;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -21,7 +23,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MoviesFragment extends Fragment {
@@ -30,13 +31,33 @@ public class MoviesFragment extends Fragment {
 
 
     private MovieAdapter movieAdapter;
-/*
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
 //        setHasOptionsMenu(true);
-    }*/
+    }
+
+    /*
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.movies_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            updateMovies();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,25 +66,21 @@ public class MoviesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-//        textView = (TextView) rootView.findViewById(R.id.textView);
-
-//        String[] array = {"test1", "test2", "test3", "test4", "test5"};
-//        List<String> myStringArray = new ArrayList<String>(Arrays.asList(array));
-        List<Movie> testList = new ArrayList<Movie>();
-        testList.add(new Movie("1", "1", "1", 1, "1"));
-        movieAdapter = new MovieAdapter(getActivity(), testList);
-
-//        Log.d(LOG_TAG, myStringArray.toString());
+        movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
         gridView.setAdapter(movieAdapter);
 
-//        ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-//        Picasso.with(getContext())
-//                .load("https://cms-assets.tutsplus.com/uploads/users/21/posts/19431/featured_image/CodeFeature.jpg")
-//                .into(imageView);
-
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Movie movie = movieAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), MovieActivity.class)
+                        .putExtra("MOVIE_DETAIL_INFO", movie);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -154,7 +171,6 @@ public class MoviesFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie[] movies) {
-            Log.d(LOG_TAG, "Number of movies here:" + Integer.toString(movies.length));
             movieAdapter.clear();
             for (Movie movie:movies) {
                 movieAdapter.add(movie);
