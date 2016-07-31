@@ -1,18 +1,17 @@
 package com.johnnyjinjing.popmovies;
 
-import java.util.Date;
-
 public class Movie {
     private String posterUrl;
     private String originTitle;
     private String plotSynopsis;
-    private float UserRating;
-    private Date releaseDate  = null;
+    private double UserRating;
+    private String releaseDate  = null;
 
-    public Movie (String url, String title, String plot, float rate){
+    public Movie (String url, String title, String plot, double rate, String date){
         this.posterUrl = url;
         this.originTitle = title;
         this.plotSynopsis = plot;
         this.UserRating = rate;
+        this.releaseDate = date;
     }
 }

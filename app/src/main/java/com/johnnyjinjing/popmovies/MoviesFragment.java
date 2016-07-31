@@ -144,16 +144,30 @@ public class MoviesFragment extends Fragment {
 
             // Names of the JSON objects that need to be extracted.
             final String TMDB_RESULTS = "results";
-//            final String TMDB_POSTER_PATH = "poster_path";
-//            final String OWM_TEMPERATURE = "temp";
-//            final String OWM_MAX = "max";
-//            final String OWM_MIN = "min";
-//            final String OWM_DESCRIPTION = "main";
+            final String TMDB_POSTER_PATH = "poster_path";
+            final String TMDB_ORIGINAL_TITLE = "original_title";
+            final String TMDB_PLOT= "overview";
+            final String TMDB_RATING = "vote_average";
+            final String TMDB_DATE = "release_date";
+
+            Movie[] movies;
+
             try {
                 JSONObject popMoviesJson = new JSONObject(popMoviesJsonStr);
                 // JSONArray of movies
                 JSONArray popMoviesArray = popMoviesJson.getJSONArray(TMDB_RESULTS);
-                return null;
+                movies = new Movie[popMoviesArray.length()];
+
+                // For each movie in the array, get essential info and create a Movie Object
+                for (int i = 0; i < popMoviesArray.length(); i++) {
+                    JSONObject movieJsonObj = popMoviesArray.getJSONObject(i);
+                    movies[i] = new Movie (movieJsonObj.getString(TMDB_POSTER_PATH),
+                            movieJsonObj.getString(TMDB_ORIGINAL_TITLE),
+                            movieJsonObj.getString(TMDB_PLOT),
+                            movieJsonObj.getDouble(TMDB_RATING),
+                            movieJsonObj.getString(TMDB_DATE));
+                }
+                return movies;
             } catch (JSONException e) {
                 return null;
             }
