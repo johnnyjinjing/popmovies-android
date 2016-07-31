@@ -11,7 +11,7 @@ public class Movie implements Parcelable{
     String originTitle;
     String plotSynopsis;
     double UserRating;
-    String releaseDate  = null;
+    String releaseDate;
 
     public Movie(String url, String title, String plot, double rate, String date){
         this.posterUrl = url;
@@ -43,7 +43,8 @@ public class Movie implements Parcelable{
         parcel.writeString(this.releaseDate);
     }
 
-    public final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>(){
+    // HAS TO be static
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>(){
         @Override
         public Movie createFromParcel(Parcel parcel) {
             return new Movie(parcel);
