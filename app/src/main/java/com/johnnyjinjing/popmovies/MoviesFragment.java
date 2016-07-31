@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +62,7 @@ public class MoviesFragment extends Fragment {
     }
 
     // Get poster and info of movies from TheMovieDB
-    public class GetMoviesTask extends AsyncTask<Void, Void, String> {
+    public class GetMoviesTask extends AsyncTask<Void, Void, Movie[]> {
 
         // Tag for debugging
         private final String LOG_TAG = GetMoviesTask.class.getSimpleName();
@@ -68,7 +72,7 @@ public class MoviesFragment extends Fragment {
         BufferedReader reader = null;
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected Movie[] doInBackground(Void... params) {
             try {
 
                 // Construct URL for movie query
@@ -110,7 +114,7 @@ public class MoviesFragment extends Fragment {
                 }
 
                 String popMoviesJsonStr = buffer.toString();
-                return popMoviesJsonStr;
+                return getMoviesDataFromJson(popMoviesJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -131,8 +135,28 @@ public class MoviesFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(String result) {
-//            textView.setText(result);
+        protected void onPostExecute(Movie[] movies) {
+            return;
+
+        }
+
+        private Movie[] getMoviesDataFromJson(String popMoviesJsonStr) {
+
+            // Names of the JSON objects that need to be extracted.
+            final String TMDB_RESULTS = "results";
+//            final String TMDB_POSTER_PATH = "poster_path";
+//            final String OWM_TEMPERATURE = "temp";
+//            final String OWM_MAX = "max";
+//            final String OWM_MIN = "min";
+//            final String OWM_DESCRIPTION = "main";
+            try {
+                JSONObject popMoviesJson = new JSONObject(popMoviesJsonStr);
+                // JSONArray of movies
+                JSONArray popMoviesArray = popMoviesJson.getJSONArray(TMDB_RESULTS);
+                return null;
+            } catch (JSONException e) {
+                return null;
+            }
         }
     }
 }
