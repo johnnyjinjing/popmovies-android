@@ -1,9 +1,11 @@
 package com.johnnyjinjing.popmovies;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -90,6 +92,11 @@ public class MoviesFragment extends Fragment {
         updateMovies();
     }
 
+    public void onResume() {
+        super.onResume();
+        updateMovies();
+    }
+
     private void updateMovies() {
         GetMoviesTask getMoviesTask = new GetMoviesTask();
         getMoviesTask.execute();
@@ -108,14 +115,24 @@ public class MoviesFragment extends Fragment {
         @Override
         protected Movie[] doInBackground(Void... params) {
             try {
+                // Get preferences
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sort = prefs.getString(getString(R.string.pref_sort_key),
+                        getString(R.string.pref_sort_popularity));
 
                 // Construct URL for movie query
                 // https://api.themoviedb.org/3/movie/popular?api_key=API_KEY
                 final String MOVIEDB_BASE_URL =
-                        "https://api.themoviedb.org/3/movie/popular?";
+                        "https://api.themoviedb.org/3/movie/";
+                String sortMethod;
+                if (sort.equals("popularity")) {
+                    sortMethod = "popular?";
+                } else {
+                    sortMethod = "top_rated?";
+                }
                 final String API_KEY_PARAM = "api_key";
 
-                Uri uri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                Uri uri = Uri.parse(MOVIEDB_BASE_URL + sortMethod).buildUpon()
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                         .build();
 
