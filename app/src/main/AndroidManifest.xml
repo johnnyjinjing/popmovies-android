@@ -26,11 +26,16 @@
             android:name=".MovieActivity"
             android:label="@string/title_activity_movie"
             android:parentActivityName=".MainActivity">
-            <!--android:theme="@style/AppTheme.NoActionBar">-->
+
+            <!-- android:theme="@style/AppTheme.NoActionBar"> -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.johnnyjinjing.popmovies.MainActivity" />
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
