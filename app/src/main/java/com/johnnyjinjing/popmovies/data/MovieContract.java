@@ -15,6 +15,8 @@ public class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.johnnyjinjing.popmovies.provider";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_TRAILER = "trailer";
+    public static final String PATH_REVIEW = "review";
 
     // To prevent someone from accidentally instantiating the contract class, give it an empty constructor.
     public MovieContract() {}
@@ -44,6 +46,16 @@ public class MovieContract {
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildTrailerUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon()
+                    .appendPath(PATH_TRAILER).build();
+        }
+
+        public static Uri buildReviewUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon()
+                    .appendPath(PATH_REVIEW).build();
         }
     }
 

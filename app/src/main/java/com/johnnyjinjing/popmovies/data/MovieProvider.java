@@ -9,12 +9,14 @@ import android.net.Uri;
 
 public class MovieProvider extends ContentProvider {
 
-    // Creates a UriMatcher object.
+    // Creates a UriMatcher object
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static final String authority = MovieContract.CONTENT_AUTHORITY;
 
-    static final int MOVIE = 1;
-    static final int MOVIES = 100;
+    static final int MOVIES = 1;
+    static final int MOVIE = 2;
+    static final int TRAILER = 3;
+    static final int REVIEW = 4;
 
     // Handle to the database helper object
     private MovieDbHelper mMovieDbHelper;
@@ -22,11 +24,15 @@ public class MovieProvider extends ContentProvider {
     // Holds the database object
     private SQLiteDatabase db;
 
+    // All of the content URI patterns that the provider recognize
     static {
-        // TODO: add pattern for trailer and comment
-        // All of the content URI patterns that the provider
-        sUriMatcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
+        sUriMatcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
+        sUriMatcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", MOVIE);
+        sUriMatcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/trailer", TRAILER);
+        sUriMatcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/review", REVIEW);
     }
+
+
 
     @Override
     public boolean onCreate() {
@@ -83,5 +89,9 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
+    }
+
+    public UriMatcher getUriMatcher() {
+        return sUriMatcher;
     }
 }
