@@ -1,7 +1,9 @@
 package com.johnnyjinjing.popmovies;
 
-import android.content.Intent;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,8 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.johnnyjinjing.popmovies.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,15 +27,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 
 public class MoviesFragment extends Fragment {
 
     private final String LOG_TAG = MoviesFragment.class.getSimpleName();
 
-
-    private MovieAdapter movieAdapter;
+    private MovieCursorAdapter movieCursorAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,13 @@ public class MoviesFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
+        String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_RATING + " DESC";
+        Cursor cur = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                null, null, null, sortOrder);
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
+        gridView.setAdapter(movieCursorAdapter);
 
+        /*
         movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
@@ -83,7 +90,7 @@ public class MoviesFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
+        */
         return rootView;
     }
 
@@ -98,22 +105,28 @@ public class MoviesFragment extends Fragment {
     }
 
     private void updateMovies() {
-        GetMoviesTask getMoviesTask = new GetMoviesTask();
+        GetMoviesTask getMoviesTask = new GetMoviesTask(getContext());
         getMoviesTask.execute();
     }
 
     // Get poster and info of movies from TheMovieDB
-    public class GetMoviesTask extends AsyncTask<Void, Void, Movie[]> {
+    public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
 
         // Tag for debugging
         private final String LOG_TAG = GetMoviesTask.class.getSimpleName();
+
+        private final Context mContext;
+
+        public GetMoviesTask(Context context) {
+            mContext = context;
+        }
 
         // Declare outside the try/catch so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
         @Override
-        protected Movie[] doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             try {
                 // Get preferences
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -166,7 +179,7 @@ public class MoviesFragment extends Fragment {
 
                 String popMoviesJsonStr = buffer.toString();
                 // Parse JSON result
-                return getMoviesDataFromJson(popMoviesJsonStr);
+//                return getMoviesDataFromJson(popMoviesJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
@@ -185,7 +198,7 @@ public class MoviesFragment extends Fragment {
 
             return null;
         }
-
+/*
         @Override
         protected void onPostExecute(Movie[] movies) {
             movieAdapter.clear();
@@ -193,7 +206,7 @@ public class MoviesFragment extends Fragment {
                 movieAdapter.add(movie);
             }
             return;
-        }
+        }*/
 
         private Movie[] getMoviesDataFromJson(String popMoviesJsonStr) {
 
@@ -214,11 +227,20 @@ public class MoviesFragment extends Fragment {
                 // For each movie in the array, get essential info and create a Movie Object
                 for (int i = 0; i < popMoviesArray.length(); i++) {
                     JSONObject movieJsonObj = popMoviesArray.getJSONObject(i);
-                    movies[i] = new Movie(movieJsonObj.getString(TMDB_POSTER_PATH),
-                            movieJsonObj.getString(TMDB_ORIGINAL_TITLE),
-                            movieJsonObj.getString(TMDB_PLOT),
-                            movieJsonObj.getDouble(TMDB_RATING),
-                            movieJsonObj.getString(TMDB_DATE));
+//                    movies[i] = new Movie(movieJsonObj.getString(TMDB_POSTER_PATH),
+//                            movieJsonObj.getString(TMDB_ORIGINAL_TITLE),
+//                            movieJsonObj.getString(TMDB_PLOT),
+//                            movieJsonObj.getDouble(TMDB_RATING),
+//                            movieJsonObj.getString(TMDB_DATE));
+                    ContentValues movieValues = new ContentValues();
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_POSTER, movieJsonObj.getString(TMDB_POSTER_PATH));
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE, movieJsonObj.getString(TMDB_ORIGINAL_TITLE));
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_PLOT, movieJsonObj.getString(TMDB_PLOT));
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_RATING, movieJsonObj.getString(TMDB_RATING));
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE, movieJsonObj.getString(TMDB_DATE));
+
+                    mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, movieValues);
+
                 }
 
                 return movies;

@@ -14,6 +14,7 @@ public class MovieProvider extends ContentProvider {
     static final String authority = MovieContract.CONTENT_AUTHORITY;
 
     static final int MOVIE = 1;
+    static final int MOVIES = 100;
 
     // Handle to the database helper object
     private MovieDbHelper mMovieDbHelper;
@@ -41,7 +42,8 @@ public class MovieProvider extends ContentProvider {
 //                db = mMovieDbHelper.getReadableDatabase();
                 return mMovieDbHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME, projection, selection, selectionArgs,
-                        null, null, sortOrder, "limit 1");
+                        null, null, sortOrder);
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
                 // If the URI is not recognized, you should do some error handling here.

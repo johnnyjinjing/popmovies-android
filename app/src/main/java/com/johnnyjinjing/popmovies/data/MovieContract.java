@@ -36,6 +36,7 @@ public class MovieContract {
         public static final String COLUMN_NAME_ORIGINAL_TITLE = "orig_title";
         public static final String COLUMN_NAME_POSTER = "poster";
         public static final String COLUMN_NAME_PLOT = "plot";
+        public static final String COLUMN_NAME_POPULARITY = "popularity";
         public static final String COLUMN_NAME_RATING = "rating";
         public static final String COLUMN_NAME_RELEASE_DATE = "release_date";
         public static final String COLUMN_NAME_FAVORITE = "favorite";
@@ -50,7 +51,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "trailer";
 
         // Column with the foreign key
-        public static final String COLUMN_MOVIE_KEY = "movie_id";
+        public static final String COLUMN_KEY_MOVIE = "movie_id";
 
         public static final String COLUMN_NAME_TRAILER = "trailer";
     }
@@ -60,7 +61,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "comment";
 
         // Column with the foreign key
-        public static final String COLUMN_MOVIE_KEY = "movie_id";
+        public static final String COLUMN_KEY_MOVIE = "movie_id";
 
         public static final String COLUMN_NAME_COMMENT = "comment";
     }
