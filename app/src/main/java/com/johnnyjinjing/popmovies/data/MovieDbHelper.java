@@ -22,8 +22,9 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         // Movie table contains info of movies
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " (" +
                 MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                MovieContract.MovieEntry.COLUMN_NAME_ID + " INTEGER UNIQUE NOT NULL, " +
                 MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE + " TEXT NOT NULL, " +
-                MovieContract.MovieEntry.COLUMN_NAME_POSTER + " TEXT, " +
+                MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_NAME_PLOT + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " REAL, " +
                 MovieContract.MovieEntry.COLUMN_NAME_RATING + " REAL, " +
@@ -39,27 +40,27 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
                 MovieContract.TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieContract.TrailerEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL," +
-                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + " TEXT UNIQUE NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
                 MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") " +
                 " );";
 
-        // Comment table contains movie comment addresses
-        final String SQL_CREATE_COMMENT_TABLE = "CREATE TABLE " + MovieContract.CommentEntry.TABLE_NAME + " (" +
-                MovieContract.CommentEntry._ID + " INTEGER PRIMARY KEY, " +
-                MovieContract.CommentEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL, " +
-                MovieContract.CommentEntry.COLUMN_NAME_COMMENT + " TEXT NOT NULL, " +
+        // Review table contains movie Review addresses
+        final String SQL_CREATE_Review_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
+                MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
+                MovieContract.ReviewEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + " TEXT UNIQUE NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
-                " FOREIGN KEY (" + MovieContract.CommentEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
+                " FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
                 MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") " +
                 " );";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_TRAILER_TABLE);
-        db.execSQL(SQL_CREATE_COMMENT_TABLE);
+        db.execSQL(SQL_CREATE_Review_TABLE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -68,7 +69,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         // TODO: alter instead of drop tables to keep user's favorite movies
         db.execSQL("DROP TABLE IF EXISTS " + MovieContract.MovieEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MovieContract.TrailerEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + MovieContract.CommentEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MovieContract.ReviewEntry.TABLE_NAME);
         onCreate(db);
     }
 

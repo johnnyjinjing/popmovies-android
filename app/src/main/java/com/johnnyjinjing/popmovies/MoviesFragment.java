@@ -233,7 +233,7 @@ public class MoviesFragment extends Fragment {
 //                            movieJsonObj.getDouble(TMDB_RATING),
 //                            movieJsonObj.getString(TMDB_DATE));
                     ContentValues movieValues = new ContentValues();
-                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_POSTER, movieJsonObj.getString(TMDB_POSTER_PATH));
+                    movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH, movieJsonObj.getString(TMDB_POSTER_PATH));
                     movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE, movieJsonObj.getString(TMDB_ORIGINAL_TITLE));
                     movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_PLOT, movieJsonObj.getString(TMDB_PLOT));
                     movieValues.put(MovieContract.MovieEntry.COLUMN_NAME_RATING, movieJsonObj.getString(TMDB_RATING));

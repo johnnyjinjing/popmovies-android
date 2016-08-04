@@ -34,12 +34,13 @@ public class MovieContract {
         public static final String TABLE_NAME = "movie";
 
         public static final String COLUMN_NAME_ORIGINAL_TITLE = "orig_title";
-        public static final String COLUMN_NAME_POSTER = "poster";
+        public static final String COLUMN_NAME_POSTER_PATH = "poster_path";
         public static final String COLUMN_NAME_PLOT = "plot";
         public static final String COLUMN_NAME_POPULARITY = "popularity";
         public static final String COLUMN_NAME_RATING = "rating";
         public static final String COLUMN_NAME_RELEASE_DATE = "release_date";
         public static final String COLUMN_NAME_FAVORITE = "favorite";
+        public static final String COLUMN_NAME_ID= "id";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -53,17 +54,17 @@ public class MovieContract {
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
 
-        public static final String COLUMN_NAME_TRAILER = "trailer";
+        public static final String COLUMN_NAME_TRAILER_PATH = "trailer_path";
     }
 
     /* Inner class that defines the comment table */
-    public static abstract class CommentEntry implements BaseColumns {
-        public static final String TABLE_NAME = "comment";
+    public static abstract class ReviewEntry implements BaseColumns {
+        public static final String TABLE_NAME = "review";
 
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
 
-        public static final String COLUMN_NAME_COMMENT = "comment";
+        public static final String COLUMN_NAME_REVIEW_PATH = "comment_path";
     }
 
 }

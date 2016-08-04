@@ -31,7 +31,7 @@ public class MovieCursorAdapter extends CursorAdapter{
 
         // Fill-in the views with the contents of the cursor
         ImageView posterView = (ImageView) view.findViewById(R.id.grid_item_poster_imageview);
-        int idx_poster = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_POSTER);
+        int idx_poster = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH);
         String posterUrlStr = POSTER_BASE_URL + POSTER_WIDTH + cursor.getString(idx_poster);
         Picasso.with(context).load(posterUrlStr).into(posterView);
     }
