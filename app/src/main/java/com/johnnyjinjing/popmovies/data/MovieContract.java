@@ -2,7 +2,8 @@ package com.johnnyjinjing.popmovies.data;
 
 import android.provider.BaseColumns;
 
-/** MovieContract
+/**
+ * MovieContract:
  * Container for constants that define names for URIs, tables, and columns.
  */
 public class MovieContract {
@@ -19,6 +20,7 @@ public class MovieContract {
         public static final String COLUMN_NAME_PLOT = "plot";
         public static final String COLUMN_NAME_RATING = "rating";
         public static final String COLUMN_NAME_RELEASE_DATE = "release_date";
+        public static final String COLUMN_NAME_FAVORITE = "favorite";
     }
 
     /* Inner class that defines the trailer table */
