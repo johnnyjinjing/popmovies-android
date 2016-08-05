@@ -24,6 +24,7 @@ public class MovieCursorAdapter extends CursorAdapter{
     }
 
     @Override
+    /* Fill-in the views with the contents of the cursor. */
     public void bindView(View view, Context context, Cursor cursor) {
 
         final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";

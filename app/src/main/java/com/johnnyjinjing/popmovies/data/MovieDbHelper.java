@@ -21,8 +21,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
         // Movie table contains info of movies
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " (" +
-//                MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
-                MovieContract.MovieEntry.COLUMN_NAME_ID + " INTEGER PRIMARY KEY, " +
+                MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                MovieContract.MovieEntry.COLUMN_NAME_ID + " INTEGER NOT NULL, " +
                 MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE + " TEXT NOT NULL, " +
                 MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_NAME_PLOT + " TEXT, " +
@@ -46,7 +46,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
-                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_NAME_ID + "), " +
+                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + "), " +
                 "UNIQUE (" + MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + ") ON CONFLICT REPLACE" +
                 " );";
 
@@ -58,7 +58,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
-                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_NAME_ID + "), " +
+                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + "), " +
                 "UNIQUE (" + MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + ") ON CONFLICT REPLACE" +
                 " );";
 
