@@ -1,8 +1,14 @@
 package com.johnnyjinjing.popmovies.data;
 
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.test.AndroidTestCase;
+
+import com.johnnyjinjing.popmovies.utils.PollingCheck;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +21,14 @@ import java.util.Set;
 /* Create test data for Movie table */
 public class TestUtility extends AndroidTestCase{
 
-    /* valid query data */
+    /* Validate cursor */
+    static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
+        assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
+        validateCurrentRecord(error, valueCursor, expectedValues);
+        valueCursor.close();
+    }
+
+    /* Validate query data */
     static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
         Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
         for (Map.Entry<String, Object> entry : valueSet) {
@@ -41,17 +54,66 @@ public class TestUtility extends AndroidTestCase{
         return cv;
     }
 
-    static ContentValues createTrailerTestValues(Long rowId) {
+    static ContentValues createTrailerTestValues(long rowId) {
         ContentValues cv = new ContentValues();
         cv.put(MovieContract.TrailerEntry.COLUMN_KEY_MOVIE, rowId);
         cv.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH, "2LqzF5WauAw");
         return cv;
     }
 
-    static ContentValues createReviewTestValues(Long rowId) {
+    static ContentValues createReviewTestValues(long rowId) {
         ContentValues cv = new ContentValues();
         cv.put(MovieContract.ReviewEntry.COLUMN_KEY_MOVIE, rowId);
         cv.put(MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH, "some words here");
         return cv;
+    }
+
+    /*
+        Test the ContentObserver callbacks using the PollingCheck class grabbed from the Android
+        CTS tests (only tests that the onChange function is called; it does not test that the
+        correct Uri is returned)
+     */
+    static class TestContentObserver extends ContentObserver {
+        final HandlerThread mHT;
+        boolean mContentChanged;
+
+        static TestContentObserver getTestContentObserver() {
+            HandlerThread ht = new HandlerThread("ContentObserverThread");
+            ht.start();
+            return new TestContentObserver(ht);
+        }
+
+        private TestContentObserver(HandlerThread ht) {
+            super(new Handler(ht.getLooper()));
+            mHT = ht;
+        }
+
+        // On earlier versions of Android, this onChange method is called
+        @Override
+        public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            mContentChanged = true;
+        }
+
+        public void waitForNotificationOrFail() {
+            // The PollingCheck class is taken from the Android CTS (Compatibility Test Suite).
+            // The reason that PollingCheck works is that, by default, the JUnit
+            // testing framework is not running on the main Android application thread.
+            new PollingCheck(5000) {
+                @Override
+                protected boolean check() {
+                    return mContentChanged;
+                }
+            }.run();
+            mHT.quit();
+        }
+    }
+
+    static TestContentObserver getTestContentObserver() {
+        return TestContentObserver.getTestContentObserver();
     }
 }

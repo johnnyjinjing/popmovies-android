@@ -21,8 +21,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
         // Movie table contains info of movies
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.MovieEntry.TABLE_NAME + " (" +
-                MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
-                MovieContract.MovieEntry.COLUMN_NAME_ID + " INTEGER UNIQUE NOT NULL, " +
+//                MovieContract.MovieEntry._ID + " INTEGER PRIMARY KEY, " +
+                MovieContract.MovieEntry.COLUMN_NAME_ID + " INTEGER PRIMARY KEY, " +
                 MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE + " TEXT NOT NULL, " +
                 MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_NAME_PLOT + " TEXT, " +
@@ -31,7 +31,9 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE + " TEXT, " +
 
                 // Use 1 for favorite, default is 0
-                MovieContract.MovieEntry.COLUMN_NAME_FAVORITE + " INTEGER DEFAULT 0 NOT NULL" +
+                MovieContract.MovieEntry.COLUMN_NAME_FAVORITE + " INTEGER DEFAULT 0 NOT NULL, " +
+                // Update the entry if has conflict
+                "UNIQUE (" + MovieContract.MovieEntry.COLUMN_NAME_ID + ") ON CONFLICT REPLACE" +
                 " );";
 
         // Trailer table contains movie trailer addresses
@@ -40,22 +42,24 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
                 MovieContract.TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieContract.TrailerEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL," +
-                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + " TEXT UNIQUE NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + " TEXT NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
-                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") " +
+                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_NAME_ID + "), " +
+                "UNIQUE (" + MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + ") ON CONFLICT REPLACE" +
                 " );";
 
         // Review table contains movie Review addresses
         final String SQL_CREATE_Review_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
                 MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieContract.ReviewEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL, " +
-                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + " TEXT UNIQUE NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + " TEXT NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
-                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + ") " +
+                MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_NAME_ID + "), " +
+                "UNIQUE (" + MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + ") ON CONFLICT REPLACE" +
                 " );";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);

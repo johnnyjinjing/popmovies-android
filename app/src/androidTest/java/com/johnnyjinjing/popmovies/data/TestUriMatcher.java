@@ -13,11 +13,11 @@ public class TestUriMatcher extends AndroidTestCase {
     // content://com.johnnyjinjing.popmovies/movie/1
     private static final Uri TEST_MOVIE_ITEM = MovieContract.MovieEntry.buildMovieUri(TEST_MOVIE_ID);
     // content://com.johnnyjinjing.popmovies/movie/1/trailer
-    private static final Uri TEST_TRAILER_DIR = MovieContract.MovieEntry.buildTrailerUri(TEST_MOVIE_ID);
+    private static final Uri TEST_TRAILER_DIR = MovieContract.MovieEntry.buildMovieWithTrailerUri(TEST_MOVIE_ID);
     // content://com.johnnyjinjing.popmovies/movie/1/review
-    private static final Uri TEST_REVIEW_DIR = MovieContract.MovieEntry.buildReviewUri(TEST_MOVIE_ID);
+    private static final Uri TEST_REVIEW_DIR = MovieContract.MovieEntry.buildMovieWithReviewUri(TEST_MOVIE_ID);
 
-    //  Test UriMatcher returns the correct integer value
+    /* Test UriMatcher returns the correct integer value */
     public void testUriMatcher() {
         UriMatcher testMatcher = new MovieProvider().getUriMatcher();
 

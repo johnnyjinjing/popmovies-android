@@ -49,7 +49,6 @@ public class TestDb extends AndroidTestCase {
 
         // Build a HashSet of all of the column names we want to look for
         HashSet<String> columnHashSet = new HashSet<String>();
-        columnHashSet.add(MovieContract.MovieEntry._ID);
         columnHashSet.add(MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE);
         columnHashSet.add(MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH);
         columnHashSet.add(MovieContract.MovieEntry.COLUMN_NAME_PLOT);
@@ -144,7 +143,6 @@ public class TestDb extends AndroidTestCase {
 
     private void deleteDatabase() {
         mContext.deleteDatabase(MovieDbHelper.DATABASE_NAME);
-
     }
 
     /* Test Trailer table */

@@ -48,12 +48,12 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
-        public static Uri buildTrailerUri(long id) {
+        public static Uri buildMovieWithTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon()
                     .appendPath(PATH_TRAILER).build();
         }
 
-        public static Uri buildReviewUri(long id) {
+        public static Uri buildMovieWithReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon()
                     .appendPath(PATH_REVIEW).build();
         }
@@ -61,22 +61,37 @@ public class MovieContract {
 
     /* Inner class that defines the trailer table */
     public static abstract class TrailerEntry implements BaseColumns {
-        public static final String TABLE_NAME = "trailer";
 
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
+
+        public static final String TABLE_NAME = "trailer";
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
-
         public static final String COLUMN_NAME_TRAILER_PATH = "trailer_path";
+
+        public static Uri buildTrailerUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
     /* Inner class that defines the comment table */
     public static abstract class ReviewEntry implements BaseColumns {
-        public static final String TABLE_NAME = "review";
 
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+
+        public static final String TABLE_NAME = "review";
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
-
         public static final String COLUMN_NAME_REVIEW_PATH = "comment_path";
-    }
 
+        public static Uri buildReviewUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
 }
