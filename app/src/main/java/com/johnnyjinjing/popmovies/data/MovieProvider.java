@@ -140,7 +140,6 @@ public class MovieProvider extends ContentProvider {
             case TRAILERS:
                 rowId = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
                 if (rowId > 0)
-//                    retUri = MovieContract.MovieEntry.buildTrailerUri(rowId);
                     retUri = MovieContract.TrailerEntry.buildTrailerUri(rowId);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
@@ -148,7 +147,6 @@ public class MovieProvider extends ContentProvider {
             case REVIEWS:
                 rowId = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
                 if (rowId > 0)
-//                    retUri = MovieContract.MovieEntry.buildMovieWithReviewUri(rowId);
                     retUri = MovieContract.ReviewEntry.buildReviewUri(rowId);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
@@ -164,28 +162,50 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+        int rowId;
+
+        switch (sUriMatcher.match(uri)) {
+            case MOVIES:
+                rowId = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case TRAILERS:
+                rowId = db.update(MovieContract.TrailerEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case REVIEWS:
+                rowId = db.update(MovieContract.ReviewEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (rowId != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowId;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
-        int rowsDeleted;
+        int nRowsDeleted;
 
         // To remove all rows and get a count pass "1" as the whereClause
         if (selection == null) selection = "1";
 
         switch (sUriMatcher.match(uri)) {
             case MOVIES:
-                rowsDeleted = db.delete(
+                nRowsDeleted = db.delete(
                         MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case TRAILER:
-                rowsDeleted = db.delete(
+            case TRAILERS:
+                nRowsDeleted = db.delete(
                         MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case REVIEW:
-                rowsDeleted = db.delete(
+            case REVIEWS:
+                nRowsDeleted = db.delete(
                         MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -193,11 +213,50 @@ public class MovieProvider extends ContentProvider {
         }
 
         // Because a null deletes all rows
-        if (rowsDeleted != 0) {
+        if (nRowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 
+        getContext().getContentResolver().notifyChange(uri, null);
         return 0;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        int retCount;
+        switch (sUriMatcher.match(uri)) {
+            case MOVIES:
+                retCount = bulkInsertHelper(MovieContract.MovieEntry.TABLE_NAME, values);
+                break;
+            case TRAILERS:
+                retCount = bulkInsertHelper(MovieContract.TrailerEntry.TABLE_NAME, values);
+                break;
+            case REVIEWS:
+                retCount = bulkInsertHelper(MovieContract.ReviewEntry.TABLE_NAME, values);
+                break;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return retCount;
+    }
+
+    private int bulkInsertHelper (String tableName, ContentValues[] values) {
+        final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+        db.beginTransaction();
+        int count = 0;
+        try {
+            for (ContentValues value : values) {
+                long rowId = db.insert(tableName, null, value);
+                if (rowId != -1) {
+                    count++;
+                }
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return count;
     }
 
     public UriMatcher getUriMatcher() {

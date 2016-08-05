@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.test.AndroidTestCase;
 
@@ -15,11 +16,7 @@ public class TestProvider extends AndroidTestCase {
     public void setUp() throws Exception {
         super.setUp();
         // Delete the database before each test
-        deleteDatabase();
-    }
-
-    private void deleteDatabase() {
-        mContext.deleteDatabase(MovieDbHelper.DATABASE_NAME);
+        deleteAllFromProvider();
     }
 
     /* Test if content provider is registered correctly */
@@ -71,7 +68,7 @@ public class TestProvider extends AndroidTestCase {
     }
 
     /* Test query */
-/*    public void testQuery() {
+    public void testQuery() {
         // insert our test data into database
         MovieDbHelper dbHelper = new MovieDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -97,14 +94,14 @@ public class TestProvider extends AndroidTestCase {
         // Test if returns the correct cursor out of database
         TestUtility.validateCursor("Error", c, testValues);
 
-        c = mContext.getContentResolver().query(MovieContract.MovieEntry.buildTrailerUri(rowId),
+        c = mContext.getContentResolver().query(MovieContract.MovieEntry.buildMovieWithTrailerUri(rowId),
                 null, null, null, null);
         TestUtility.validateCursor("Error", c, trailerValues);
 
-        c = mContext.getContentResolver().query(MovieContract.MovieEntry.buildReviewUri(rowId),
+        c = mContext.getContentResolver().query(MovieContract.MovieEntry.buildMovieWithReviewUri(rowId),
                 null, null, null, null);
         TestUtility.validateCursor("Error", c, reviewValues);
-    }*/
+    }
 
     public void testInsert() {
         ContentValues testValues = TestUtility.createMovieTestValues();
@@ -168,28 +165,124 @@ public class TestProvider extends AndroidTestCase {
                 null, null, null, null);
         TestUtility.validateCursor("Error validating data", reviewCursor, reviewValues);
     }
-/*
+
     public void testDelete(){
-        testZnsertProvider();
+        testInsert();
 
         // Register a content observer for movie delete
         TestUtility.TestContentObserver movieObs = TestUtility.getTestContentObserver();
         mContext.getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, movieObs);
 
-        // Register a content observer for trailer delete
+        // Register a content observer for trailer and review delete
         TestUtility.TestContentObserver trailerObs = TestUtility.getTestContentObserver();
-        mContext.getContentResolver().registerContentObserver(WeatherEntry.CONTENT_URI, true, weatherObserver);
+        mContext.getContentResolver().registerContentObserver(MovieContract.TrailerEntry.CONTENT_URI, true, trailerObs);
+        TestUtility.TestContentObserver reviewObs = TestUtility.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.ReviewEntry.CONTENT_URI, true, reviewObs);
 
-        deleteAllRecordsFromProvider();
+        deleteAllFromProvider();
 
-        // Students: If either of these fail, you most-likely are not calling the
-        // getContext().getContentResolver().notifyChange(uri, null); in the ContentProvider
-        // delete.  (only if the insertReadProvider is succeeding)
-        locationObserver.waitForNotificationOrFail();
-        weatherObserver.waitForNotificationOrFail();
+        movieObs.waitForNotificationOrFail();
+        trailerObs.waitForNotificationOrFail();
+        reviewObs.waitForNotificationOrFail();
 
-        mContext.getContentResolver().unregisterContentObserver(locationObserver);
-        mContext.getContentResolver().unregisterContentObserver(weatherObserver);
+        mContext.getContentResolver().unregisterContentObserver(movieObs);
+        mContext.getContentResolver().unregisterContentObserver(trailerObs);
+        mContext.getContentResolver().unregisterContentObserver(reviewObs);
     }
-*/
+
+    public void deleteAllFromProvider() {
+        mContext.getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+                null, null);
+        mContext.getContentResolver().delete(MovieContract.TrailerEntry.CONTENT_URI,
+                null, null);
+        mContext.getContentResolver().delete(MovieContract.ReviewEntry.CONTENT_URI,
+                null, null);
+
+        Cursor cursor = mContext.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                null, null, null, null);
+        assertEquals("Error", 0, cursor.getCount());
+        cursor.close();
+    }
+
+    public void testUpdate() {
+        ContentValues values = TestUtility.createMovieTestValues();
+
+        Uri uri = mContext.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        long rowId = ContentUris.parseId(uri);
+
+        assertTrue(rowId != -1);
+//        Log.d(LOG_TAG, "New row id: " + rowId);
+
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(MovieContract.MovieEntry.COLUMN_NAME_ID, rowId);
+        updatedValues.put(MovieContract.MovieEntry.COLUMN_NAME_FAVORITE, 1);
+
+        Cursor cursor = mContext.getContentResolver()
+                .query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+
+        TestUtility.TestContentObserver tco = TestUtility.getTestContentObserver();
+        cursor.registerContentObserver(tco);
+
+        int count = mContext.getContentResolver().update(
+                MovieContract.MovieEntry.CONTENT_URI, updatedValues, MovieContract.MovieEntry.COLUMN_NAME_ID + "= ?",
+                new String[] { Long.toString(rowId)});
+        assertEquals(count, 1);
+
+        tco.waitForNotificationOrFail();
+
+        cursor.unregisterContentObserver(tco);
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                MovieContract.MovieEntry.COLUMN_NAME_ID + " = " + rowId,
+                null,
+                null
+        );
+
+        TestUtility.validateCursor("Error", cursor, updatedValues);
+
+        cursor.close();
+    }
+
+    public void testBulkInsert() {
+        // Create test bulk insert values
+        final int N_RECORDS = 10;
+        ContentValues[] bulkValues = new ContentValues[N_RECORDS];
+        for (int i = 0; i < N_RECORDS; i++) {
+            ContentValues values = TestUtility.createMovieTestValues();
+            values.put(MovieContract.MovieEntry.COLUMN_NAME_ID, i);
+            bulkValues[i] = values;
+        }
+
+        // Register a content observer for bulk insert
+        TestUtility.TestContentObserver tco = TestUtility.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, tco);
+
+        int count = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, bulkValues);
+
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+
+        assertEquals(count, N_RECORDS);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                MovieContract.MovieEntry.COLUMN_NAME_ID + " ASC"
+        );
+
+        assertEquals(cursor.getCount(), N_RECORDS);
+
+        cursor.moveToFirst();
+        for ( int i = 0; i < N_RECORDS; i++, cursor.moveToNext() ) {
+            TestUtility.validateCurrentRecord("Error",
+                    cursor, bulkValues[i]);
+        }
+        cursor.close();
+    }
 }
+
