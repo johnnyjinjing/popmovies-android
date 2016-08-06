@@ -13,6 +13,8 @@ import java.util.List;
 
 public class MovieProvider extends ContentProvider {
 
+    private final String LOG_TAG = MovieProvider.class.getSimpleName();
+
     // Creates a UriMatcher object
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static final String authority = MovieContract.CONTENT_AUTHORITY;
@@ -241,7 +243,7 @@ public class MovieProvider extends ContentProvider {
         return retCount;
     }
 
-    private int bulkInsertHelper (String tableName, ContentValues[] values) {
+    private int bulkInsertHelper(String tableName, ContentValues[] values) {
         final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
         db.beginTransaction();
         int count = 0;

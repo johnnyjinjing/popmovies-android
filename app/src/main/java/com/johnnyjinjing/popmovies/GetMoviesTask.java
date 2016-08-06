@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 // Get poster and info of movies from TheMovieDB
 public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
@@ -49,6 +51,12 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
     final String TMDB_POPULARITY = "popularity";
     final String TMDB_ID = "id";
     final String TMDB_KEY = "key";
+    final String TMDB_NAME = "name";
+    final String TMDB_CONTENT = "content";
+    final String TMDB_AUTHOR = "author";
+    final String TMDB_TRAILER_PATH = "videos";
+    final String TMDB_REVIEW_PATH = "reviews";
+
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -97,8 +105,6 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
 
     private void getMoviesDataFromJson(String popMoviesJsonStr) {
 
-
-
         try {
             JSONObject popMoviesJson = new JSONObject(popMoviesJsonStr);
             // JSONArray of movies
@@ -143,17 +149,17 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
     }
 
     private void getMoreData(ContentValues[] cvs) throws JSONException {
-        ContentValues[] movieCvArray = new ContentValues[cvs.length];
+        List<ContentValues> trailerCvVector = new ArrayList<ContentValues>();
+        List<ContentValues> reviewCvVector = new ArrayList<ContentValues>();
 
         for (ContentValues cv : cvs) {
-
             long movie_id = cv.getAsLong(MovieContract.MovieEntry.COLUMN_NAME_ID);
-            Log.d(LOG_TAG, "Movie ID is: " + movie_id);
+//            Log.d(LOG_TAG, "Movie ID is: " + movie_id);
 
             // Trailer URL: https://api.themoviedb.org/3/movie/movie_id/videos?api_key=***
             Uri uri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
                     .appendPath(Long.toString(movie_id))
-                    .appendPath("videos")
+                    .appendPath(TMDB_TRAILER_PATH)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                     .build();
             URL url = null;
@@ -163,21 +169,74 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
                 e.printStackTrace();
             }
 
-            String trailerString = getOnlineData(url);
-            JSONObject trailerJson = new JSONObject(trailerString);
-            JSONArray trailerArray = trailerJson.getJSONArray("results");
+            String dataString = getOnlineData(url);
+            JSONObject dataJson = new JSONObject(dataString);
+            JSONArray dataArray = dataJson.getJSONArray(TMDB_RESULTS);
 
-            for (int i = 0; i < trailerArray.length(); i++) {
-                JSONObject movieJsonObj = trailerArray.getJSONObject(i);
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject movieJsonObj = dataArray.getJSONObject(i);
                 ContentValues movieValue = new ContentValues();
-                movieValue.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH, movieJsonObj.getString(TMDB_KEY));
+                movieValue.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY, movieJsonObj.getString(TMDB_KEY));
+                movieValue.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_ID, movieJsonObj.getString(TMDB_ID));
+                movieValue.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_NAME, movieJsonObj.getString(TMDB_NAME));
                 movieValue.put(MovieContract.TrailerEntry.COLUMN_KEY_MOVIE, movie_id);
-                movieCvArray[i] = movieValue;
+//                Log.d(LOG_TAG, movieJsonObj.getString(TMDB_KEY) + " " + movieJsonObj.getString(TMDB_ID) +
+//                        " " + movieJsonObj.getString(TMDB_NAME));
+//                trailerCvArray[i] = movieValue;
+                trailerCvVector.add(movieValue);
             }
 
-            if (movieCvArray.length > 0) {
-                mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, movieCvArray);
+            // Review URL: https://api.themoviedb.org/3/movie/movie_id/reviews?api_key=***
+            uri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                    .appendPath(Long.toString(movie_id))
+                    .appendPath(TMDB_REVIEW_PATH)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
+                    .build();
+            url = null;
+            try {
+                url = new URL(uri.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
+
+            dataString = getOnlineData(url);
+            dataJson = new JSONObject(dataString);
+            dataArray = dataJson.getJSONArray(TMDB_RESULTS);
+
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject movieJsonObj = dataArray.getJSONObject(i);
+                ContentValues movieValue = new ContentValues();
+                movieValue.put(MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_CONTENT, movieJsonObj.getString(TMDB_CONTENT));
+                movieValue.put(MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_AUTHOR, movieJsonObj.getString(TMDB_AUTHOR));
+                movieValue.put(MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_ID, movieJsonObj.getString(TMDB_ID));
+                movieValue.put(MovieContract.ReviewEntry.COLUMN_KEY_MOVIE, movie_id);
+//                reviewCvArray[i] = movieValue;
+                reviewCvVector.add(movieValue);
+            }
+        }
+
+//        for (ContentValues value : trailerCvArray) {
+//            if (value.getAsString(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY) != null) {
+//                Log.d(LOG_TAG, value.getAsString(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY));
+//            }
+//        }
+
+//        if (trailerCvArray.length > 0) {
+//            mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, trailerCvArray);
+//        }
+//
+//        if (reviewCvArray.length > 0) {
+//            mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewCvArray);
+//        }
+        if (trailerCvVector.size() > 0) {
+            ContentValues[] trailerCvArray = new ContentValues[trailerCvVector.size()];
+            trailerCvVector.toArray(trailerCvArray);
+            mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, trailerCvArray);
+        }
+        if (reviewCvVector.size() > 0) {
+            ContentValues[] reviewCvArray = new ContentValues[reviewCvVector.size()];
+            reviewCvVector.toArray(reviewCvArray);
+            mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewCvArray);
         }
     }
 

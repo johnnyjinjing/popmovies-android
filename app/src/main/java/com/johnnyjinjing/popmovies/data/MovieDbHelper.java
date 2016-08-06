@@ -41,25 +41,29 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         // movie entries
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + MovieContract.TrailerEntry.TABLE_NAME + " (" +
                 MovieContract.TrailerEntry._ID + " INTEGER PRIMARY KEY, " +
-                MovieContract.TrailerEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL," +
-                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_ID + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_NAME + " TEXT NOT NULL, " +
+                MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY + " TEXT NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.TrailerEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
                 MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + "), " +
-                "UNIQUE (" + MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH + ") ON CONFLICT REPLACE" +
+                "UNIQUE (" + MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_ID + ") ON CONFLICT REPLACE" +
                 " );";
 
         // Review table contains movie Review addresses
         final String SQL_CREATE_Review_TABLE = "CREATE TABLE " + MovieContract.ReviewEntry.TABLE_NAME + " (" +
                 MovieContract.ReviewEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieContract.ReviewEntry.COLUMN_KEY_MOVIE + " INTEGER NOT NULL, " +
-                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + " TEXT NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_ID + " TEXT NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_AUTHOR + " TEXT NOT NULL, " +
+                MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_CONTENT + " TEXT NOT NULL, " +
 
                 // Set up the movie column as a foreign key to movie table.
                 " FOREIGN KEY (" + MovieContract.ReviewEntry.COLUMN_KEY_MOVIE  + ") REFERENCES " +
                 MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry._ID + "), " +
-                "UNIQUE (" + MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_PATH + ") ON CONFLICT REPLACE" +
+                "UNIQUE (" + MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_ID + ") ON CONFLICT REPLACE" +
                 " );";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);

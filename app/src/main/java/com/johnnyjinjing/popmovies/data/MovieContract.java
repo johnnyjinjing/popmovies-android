@@ -70,7 +70,9 @@ public class MovieContract {
         public static final String TABLE_NAME = "trailer";
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
-        public static final String COLUMN_NAME_TRAILER_PATH = "trailer_path";
+        public static final String COLUMN_NAME_TRAILER_ID = "trailer_id";
+        public static final String COLUMN_NAME_TRAILER_NAME = "trailer_name";
+        public static final String COLUMN_NAME_TRAILER_KEY = "trailer_key";
 
         public static Uri buildTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -88,7 +90,9 @@ public class MovieContract {
         public static final String TABLE_NAME = "review";
         // Column with the foreign key
         public static final String COLUMN_KEY_MOVIE = "movie_id";
-        public static final String COLUMN_NAME_REVIEW_PATH = "comment_path";
+        public static final String COLUMN_NAME_REVIEW_ID = "review_id";
+        public static final String COLUMN_NAME_REVIEW_CONTENT = "review_content";
+        public static final String COLUMN_NAME_REVIEW_AUTHOR = "review_author";
 
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

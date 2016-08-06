@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private static final int MOVIE_LOADER = 0;
     private static final int TRAILER_LOADER = 1;
+    private static final int REVIEW_LOADER = 2;
 
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -44,9 +44,18 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int COL_MOVIE_FAVORITE = 6;
 
     private static final String[] TRAILER_COLUMNS = {
-            MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH,
+            MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY,
+            MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_NAME,
     };
-    private static final int COL_TRAILER_PATH = 0;
+    private static final int COL_TRAILER_KEY = 0;
+    private static final int COL_TRAILER_NAME = 1;
+
+    private static final String[] REVIEW_COLUMNS = {
+            MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_CONTENT,
+            MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_AUTHOR,
+    };
+    private static final int COL_REIVEW_CONTENT = 0;
+    private static final int COL_REIVEW_AUTHOR = 1;
 
 
     @Override
@@ -69,6 +78,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         getLoaderManager().initLoader(TRAILER_LOADER, null, this);
+        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -91,10 +101,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
             case TRAILER_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieWithTrailerUri(movie_id);
-                Log.i(LOG_TAG, uri.toString());
+//                Log.i(LOG_TAG, uri.toString());
                 return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
 //                uri = MovieContract.TrailerEntry.buildTrailerUri(id);
 //                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
+            case REVIEW_LOADER:
+                uri = MovieContract.MovieEntry.buildMovieWithReviewUri(movie_id);
+//                Log.i(LOG_TAG, uri.toString());
+                return new CursorLoader(getActivity(), uri, REVIEW_COLUMNS, null, null, null);
             default:
                 return null;
         }
@@ -125,8 +139,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 break;
 
             case TRAILER_LOADER:
-                ((TextView) rootView.findViewById(R.id.trailer_url)).setText(data.getString(COL_TRAILER_PATH));
+                ((TextView) rootView.findViewById(R.id.trailer_url)).setText(data.getString(COL_TRAILER_KEY));
                 break;
+            case REVIEW_LOADER:
+                ((TextView) rootView.findViewById(R.id.review_url)).setText(data.getString(COL_REIVEW_CONTENT));
             default:
                 return;
         }
