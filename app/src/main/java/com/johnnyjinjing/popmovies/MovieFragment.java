@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
 
     private static final int MOVIE_LOADER = 0;
+    private static final int TRAILER_LOADER = 1;
 
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -40,6 +42,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int COL_MOVIE_RATING = 4;
     private static final int COL_MOVIE_RELEASE_DATE = 5;
     private static final int COL_MOVIE_FAVORITE = 6;
+
+    private static final String[] TRAILER_COLUMNS = {
+            MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH,
+    };
+    private static final int COL_TRAILER_PATH = 0;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +68,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -74,13 +83,21 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
         int movie_id = intent.getIntExtra("movie_id", -1);
         Uri uri;
-        if (movie_id >= 0) {
-            uri = MovieContract.MovieEntry.buildMovieUri(movie_id);
-        } else {
-            return null;
-        }
+        if (movie_id <= 0) return null;
 
-        return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
+        switch (id) {
+            case MOVIE_LOADER:
+                uri = MovieContract.MovieEntry.buildMovieUri(movie_id);
+                return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
+            case TRAILER_LOADER:
+                uri = MovieContract.MovieEntry.buildMovieWithTrailerUri(movie_id);
+                Log.i(LOG_TAG, uri.toString());
+                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
+//                uri = MovieContract.TrailerEntry.buildTrailerUri(id);
+//                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -90,18 +107,30 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             return;
         }
 
-        final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String POSTER_WIDTH = "w185";
-
         View rootView = getView();
-        ((TextView) rootView.findViewById(R.id.text_original_title)).setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
-        ((TextView) rootView.findViewById(R.id.text_plot)).setText(data.getString(COL_MOVIE_PLOT));
-        ((TextView) rootView.findViewById(R.id.text_rating)).setText(Double.toString(data.getDouble(COL_MOVIE_RATING)));
-        ((TextView) rootView.findViewById(R.id.text_release_date)).setText(data.getString(COL_MOVIE_RELEASE_DATE));
 
-        ImageView thumbnailView = (ImageView) rootView.findViewById(R.id.image_poster_thumbnail);
-        String posterUrlStr = POSTER_BASE_URL + POSTER_WIDTH + data.getString(COL_MOVIE_POSTER_PATH);
-        Picasso.with(getContext()).load(posterUrlStr).into(thumbnailView);
+        switch (loader.getId()) {
+            case MOVIE_LOADER:
+                final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
+                final String POSTER_WIDTH = "w185";
+
+                ((TextView) rootView.findViewById(R.id.text_original_title)).setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
+                ((TextView) rootView.findViewById(R.id.text_plot)).setText(data.getString(COL_MOVIE_PLOT));
+                ((TextView) rootView.findViewById(R.id.text_rating)).setText(Double.toString(data.getDouble(COL_MOVIE_RATING)));
+                ((TextView) rootView.findViewById(R.id.text_release_date)).setText(data.getString(COL_MOVIE_RELEASE_DATE));
+
+                ImageView thumbnailView = (ImageView) rootView.findViewById(R.id.image_poster_thumbnail);
+                String posterUrlStr = POSTER_BASE_URL + POSTER_WIDTH + data.getString(COL_MOVIE_POSTER_PATH);
+                Picasso.with(getContext()).load(posterUrlStr).into(thumbnailView);
+                break;
+
+            case TRAILER_LOADER:
+                ((TextView) rootView.findViewById(R.id.trailer_url)).setText(data.getString(COL_TRAILER_PATH));
+                break;
+            default:
+                return;
+        }
+        return;
     }
 
     @Override

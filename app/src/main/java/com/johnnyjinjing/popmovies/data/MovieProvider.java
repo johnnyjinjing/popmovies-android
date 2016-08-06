@@ -247,6 +247,9 @@ public class MovieProvider extends ContentProvider {
         int count = 0;
         try {
             for (ContentValues value : values) {
+                if (value == null) {
+                    continue;
+                }
                 long rowId = db.insert(tableName, null, value);
                 if (rowId != -1) {
                     count++;

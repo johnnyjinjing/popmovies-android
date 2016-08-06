@@ -33,7 +33,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 // Use 1 for favorite, default is 0
                 MovieContract.MovieEntry.COLUMN_NAME_FAVORITE + " INTEGER DEFAULT 0 NOT NULL, " +
                 // Update the entry if has conflict
-                "UNIQUE (" + MovieContract.MovieEntry.COLUMN_NAME_ID + ") ON CONFLICT REPLACE" +
+                "UNIQUE (" + MovieContract.MovieEntry.COLUMN_NAME_ID + ") ON CONFLICT IGNORE" +
                 " );";
 
         // Trailer table contains movie trailer addresses

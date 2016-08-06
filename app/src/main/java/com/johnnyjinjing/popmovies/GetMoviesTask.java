@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 // Get poster and info of movies from TheMovieDB
@@ -35,33 +36,155 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
     HttpURLConnection urlConnection = null;
     BufferedReader reader = null;
 
+    final String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    final String API_KEY_PARAM = "api_key";
+
+    // Names of the JSON objects that need to be extracted.
+    final String TMDB_RESULTS = "results";
+    final String TMDB_POSTER_PATH = "poster_path";
+    final String TMDB_ORIGINAL_TITLE = "original_title";
+    final String TMDB_PLOT = "overview";
+    final String TMDB_RATING = "vote_average";
+    final String TMDB_DATE = "release_date";
+    final String TMDB_POPULARITY = "popularity";
+    final String TMDB_ID = "id";
+    final String TMDB_KEY = "key";
+
     @Override
     protected Void doInBackground(Void... params) {
-        try {
-            // Get preferences
+        // Get preferences
 //            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 //            String sort = prefs.getString(getString(R.string.pref_sort_key),
 //                    getString(R.string.pref_sort_popularity));
-            String sort = "popularity";
+        String sort = "popularity";
 
-            // Construct URL for movie query
-            // https://api.themoviedb.org/3/movie/popular?api_key=API_KEY
-            final String MOVIEDB_BASE_URL =
-                    "https://api.themoviedb.org/3/movie/";
-            String sortMethod;
-            if (sort.equals("popularity")) {
-                sortMethod = "popular?";
-            } else {
-                sortMethod = "top_rated?";
+        // Construct URL for movie query
+        // https://api.themoviedb.org/3/movie/popular?api_key=API_KEY
+
+        String sortMethod;
+        if (sort.equals("popularity")) {
+            sortMethod = "popular?";
+        } else {
+            sortMethod = "top_rated?";
+        }
+
+        Uri uri = Uri.parse(MOVIEDB_BASE_URL + sortMethod).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
+                .build();
+
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        String popMoviesJsonStr = getOnlineData(url);
+        // Parse JSON result
+        getMoviesDataFromJson(popMoviesJsonStr);
+        return null;
+
+    }
+/*
+        @Override
+        protected void onPostExecute(Movie[] movies) {
+            movieAdapter.clear();
+            for (Movie movie:movies) {
+                movieAdapter.add(movie);
             }
-            final String API_KEY_PARAM = "api_key";
+            return;
+        }*/
 
-            Uri uri = Uri.parse(MOVIEDB_BASE_URL + sortMethod).buildUpon()
+    private void getMoviesDataFromJson(String popMoviesJsonStr) {
+
+
+
+        try {
+            JSONObject popMoviesJson = new JSONObject(popMoviesJsonStr);
+            // JSONArray of movies
+            JSONArray popMoviesArray = popMoviesJson.getJSONArray(TMDB_RESULTS);
+
+            // An array of values for bulkInsert
+            ContentValues[] movieCvArray = new ContentValues[popMoviesArray.length()];
+
+//            Movie[] movies = new Movie[popMoviesArray.length()];
+
+            // For each movie in the array, get essential info and create a ContentValue
+            for (int i = 0; i < popMoviesArray.length(); i++) {
+                JSONObject movieJsonObj = popMoviesArray.getJSONObject(i);
+
+                /* Create Movie object (used in previous version)
+                    movies[i] = new Movie(movieJsonObj.getString(TMDB_POSTER_PATH),
+                            movieJsonObj.getString(TMDB_ORIGINAL_TITLE),
+                            movieJsonObj.getString(TMDB_PLOT),
+                            movieJsonObj.getDouble(TMDB_RATING),
+                            movieJsonObj.getString(TMDB_DATE));
+                */
+                ContentValues movieValue = new ContentValues();
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH, movieJsonObj.getString(TMDB_POSTER_PATH));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE, movieJsonObj.getString(TMDB_ORIGINAL_TITLE));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_PLOT, movieJsonObj.getString(TMDB_PLOT));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_RATING, movieJsonObj.getDouble(TMDB_RATING));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_POPULARITY, movieJsonObj.getDouble(TMDB_POPULARITY));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE, movieJsonObj.getString(TMDB_DATE));
+                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_ID, movieJsonObj.getInt(TMDB_ID));
+                movieCvArray[i] = movieValue;
+            }
+
+            // Insert into database
+            if (movieCvArray.length > 0) {
+                mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieCvArray);
+                getMoreData(movieCvArray);
+            }
+        } catch (JSONException e) {
+            return;
+        }
+        return;
+    }
+
+    private void getMoreData(ContentValues[] cvs) throws JSONException {
+        ContentValues[] movieCvArray = new ContentValues[cvs.length];
+
+        for (ContentValues cv : cvs) {
+
+            long movie_id = cv.getAsLong(MovieContract.MovieEntry.COLUMN_NAME_ID);
+            Log.d(LOG_TAG, "Movie ID is: " + movie_id);
+
+            // Trailer URL: https://api.themoviedb.org/3/movie/movie_id/videos?api_key=***
+            Uri uri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                    .appendPath(Long.toString(movie_id))
+                    .appendPath("videos")
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                     .build();
+            URL url = null;
+            try {
+                url = new URL(uri.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
 
-            URL url = new URL(uri.toString());
+            String trailerString = getOnlineData(url);
+            JSONObject trailerJson = new JSONObject(trailerString);
+            JSONArray trailerArray = trailerJson.getJSONArray("results");
 
+            for (int i = 0; i < trailerArray.length(); i++) {
+                JSONObject movieJsonObj = trailerArray.getJSONObject(i);
+                ContentValues movieValue = new ContentValues();
+                movieValue.put(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_PATH, movieJsonObj.getString(TMDB_KEY));
+                movieValue.put(MovieContract.TrailerEntry.COLUMN_KEY_MOVIE, movie_id);
+                movieCvArray[i] = movieValue;
+            }
+
+            if (movieCvArray.length > 0) {
+                mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, movieCvArray);
+            }
+        }
+    }
+
+
+    private String getOnlineData(URL url) {
+        String receivedJsonStr;
+        try {
             // Create the request and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -88,10 +211,8 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
                 return null;
             }
 
-            String popMoviesJsonStr = buffer.toString();
-            // Parse JSON result
-            getMoviesDataFromJson(popMoviesJsonStr);
-            return null;
+            receivedJsonStr = buffer.toString();
+            return receivedJsonStr;
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -109,65 +230,5 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
         }
         return null;
     }
-/*
-        @Override
-        protected void onPostExecute(Movie[] movies) {
-            movieAdapter.clear();
-            for (Movie movie:movies) {
-                movieAdapter.add(movie);
-            }
-            return;
-        }*/
-
-    private void getMoviesDataFromJson(String popMoviesJsonStr) {
-
-        // Names of the JSON objects that need to be extracted.
-        final String TMDB_RESULTS = "results";
-        final String TMDB_POSTER_PATH = "poster_path";
-        final String TMDB_ORIGINAL_TITLE = "original_title";
-        final String TMDB_PLOT = "overview";
-        final String TMDB_RATING = "vote_average";
-        final String TMDB_DATE = "release_date";
-        final String TMDB_POPULARITY = "popularity";
-        final String TMDB_ID = "id";
-
-        try {
-            JSONObject popMoviesJson = new JSONObject(popMoviesJsonStr);
-            // JSONArray of movies
-            JSONArray popMoviesArray = popMoviesJson.getJSONArray(TMDB_RESULTS);
-
-            // An array of values for bulkInsert
-            ContentValues[] movieCvArray = new ContentValues[popMoviesArray.length()];
-
-//            Movie[] movies = new Movie[popMoviesArray.length()];
-
-            // For each movie in the array, get essential info and create a ContentValue
-            for (int i = 0; i < popMoviesArray.length(); i++) {
-                JSONObject movieJsonObj = popMoviesArray.getJSONObject(i);
-//                    movies[i] = new Movie(movieJsonObj.getString(TMDB_POSTER_PATH),
-//                            movieJsonObj.getString(TMDB_ORIGINAL_TITLE),
-//                            movieJsonObj.getString(TMDB_PLOT),
-//                            movieJsonObj.getDouble(TMDB_RATING),
-//                            movieJsonObj.getString(TMDB_DATE));
-                ContentValues movieValue = new ContentValues();
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_POSTER_PATH, movieJsonObj.getString(TMDB_POSTER_PATH));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_ORIGINAL_TITLE, movieJsonObj.getString(TMDB_ORIGINAL_TITLE));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_PLOT, movieJsonObj.getString(TMDB_PLOT));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_RATING, movieJsonObj.getDouble(TMDB_RATING));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_POPULARITY, movieJsonObj.getDouble(TMDB_POPULARITY));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_RELEASE_DATE, movieJsonObj.getString(TMDB_DATE));
-                movieValue.put(MovieContract.MovieEntry.COLUMN_NAME_ID, movieJsonObj.getInt(TMDB_ID));
-
-                movieCvArray[i] = movieValue;
-            }
-
-            // Insert into database
-            if (movieCvArray.length > 0) {
-                mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieCvArray);
-            }
-        } catch (JSONException e) {
-            return;
-        }
-        return;
-    }
 }
+

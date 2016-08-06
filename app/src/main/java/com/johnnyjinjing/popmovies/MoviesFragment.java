@@ -85,7 +85,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
-        /*
+        /* Use Movie object (in previous version)
         movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
