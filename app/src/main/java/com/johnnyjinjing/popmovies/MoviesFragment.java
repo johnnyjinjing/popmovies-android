@@ -1,6 +1,5 @@
 package com.johnnyjinjing.popmovies;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,9 +26,18 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private final String LOG_TAG = MoviesFragment.class.getSimpleName();
 
-    private MovieCursorAdapter movieCursorAdapter;
+    private MoviesCursorAdapter moviesCursorAdapter;
 
     private static final int MOVIE_LOADER = 0;
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        public void onItemSelected(long id);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,13 +70,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // The cursor adapter takes data from cursor and populate the View.
-        movieCursorAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+        moviesCursorAdapter = new MoviesCursorAdapter(getActivity(), null, 0);
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
-        gridView.setAdapter(movieCursorAdapter);
+        gridView.setAdapter(moviesCursorAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -78,9 +86,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
                     int col = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_NAME_ID);
+                    /* Use Intent to start a new activity (used in old version)
                     Intent intent = new Intent(getActivity(), MovieActivity.class)
                             .putExtra("movie_id", cursor.getInt(col));
                     startActivity(intent);
+                    */
+                    // Using a callback to launch new activity
+                    ((Callback) getActivity()).onItemSelected(cursor.getInt(col));
                 }
             }
         });
@@ -137,11 +149,11 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        movieCursorAdapter.swapCursor(cursor);
+        moviesCursorAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        movieCursorAdapter.swapCursor(null);
+        moviesCursorAdapter.swapCursor(null);
     }
 }

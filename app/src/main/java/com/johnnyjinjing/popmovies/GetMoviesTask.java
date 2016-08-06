@@ -170,6 +170,7 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
             }
 
             String dataString = getOnlineData(url);
+            if (dataString == null) return;
             JSONObject dataJson = new JSONObject(dataString);
             JSONArray dataArray = dataJson.getJSONArray(TMDB_RESULTS);
 
@@ -200,6 +201,7 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
             }
 
             dataString = getOnlineData(url);
+            if (dataString == null) return;
             dataJson = new JSONObject(dataString);
             dataArray = dataJson.getJSONArray(TMDB_RESULTS);
 

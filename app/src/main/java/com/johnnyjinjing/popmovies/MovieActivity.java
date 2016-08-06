@@ -12,6 +12,19 @@ public class MovieActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+
+        if (savedInstanceState == null) {
+            // Create the movie detail fragment and add it to the activity using a fragment transaction.
+            Bundle arguments = new Bundle();
+            arguments.putLong(MovieFragment.MOVIE_ID, getIntent().getLongExtra(MovieFragment.MOVIE_ID, -1));
+
+            MovieFragment fragment = new MovieFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_fragment, fragment)
+                    .commit();
+        }
     }
 
     @Override

@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import com.johnnyjinjing.popmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
-public class MovieCursorAdapter extends CursorAdapter{
+public class MoviesCursorAdapter extends CursorAdapter{
 
-    public MovieCursorAdapter(Context context, Cursor c, int flags) {
+    public MoviesCursorAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
 

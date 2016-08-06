@@ -1,7 +1,6 @@
 package com.johnnyjinjing.popmovies;
 
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +20,10 @@ import com.squareup.picasso.Picasso;
 public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
+
+    static final String MOVIE_ID = "movie_id";
+
+    private long movie_id;
 
     private static final int MOVIE_LOADER = 0;
     private static final int TRAILER_LOADER = 1;
@@ -69,6 +72,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Bundle arguments = getArguments();
+
+        if (arguments != null) {
+            movie_id = arguments.getLong(MOVIE_ID);
+        }
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         return rootView;
@@ -84,14 +93,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-        Intent intent = getActivity().getIntent();
-        if (intent == null || !intent.hasExtra("movie_id")) {
-            return null;
-        }
+//        Intent intent = getActivity().getIntent();
+//        if (intent == null || !intent.hasExtra(MovieFragment.MOVIE_ID)) {
+//            return null;
+//        }
 
         // Initialize the cursor loader
         String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
-        int movie_id = intent.getIntExtra("movie_id", -1);
+//        int movie_id = intent.getIntExtra(MovieFragment.MOVIE_ID, -1);
         Uri uri;
         if (movie_id <= 0) return null;
 
