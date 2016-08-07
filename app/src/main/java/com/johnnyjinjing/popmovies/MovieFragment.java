@@ -2,6 +2,7 @@ package com.johnnyjinjing.popmovies;
 
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -60,6 +61,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int COL_REIVEW_CONTENT = 0;
     private static final int COL_REIVEW_AUTHOR = 1;
 
+    private TextView originalTitleTextView;
+    private TextView plotTextView;
+    private TextView ratingTextView;
+    private TextView dateTextView;
+    private ImageView thumbnailView;
+    private View separaterView;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,6 +88,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
+
+        originalTitleTextView = (TextView) rootView.findViewById(R.id.text_original_title);
+        plotTextView = (TextView) rootView.findViewById(R.id.text_plot);
+        ratingTextView = (TextView) rootView.findViewById(R.id.text_rating);
+        dateTextView = (TextView) rootView.findViewById(R.id.text_release_date);
+        thumbnailView = (ImageView) rootView.findViewById(R.id.image_poster_thumbnail);
+        separaterView = (View) rootView.findViewById(R.id.separater);
+
         return rootView;
     }
 
@@ -137,12 +153,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
                 final String POSTER_WIDTH = "w185";
 
-                ((TextView) rootView.findViewById(R.id.text_original_title)).setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
-                ((TextView) rootView.findViewById(R.id.text_plot)).setText(data.getString(COL_MOVIE_PLOT));
-                ((TextView) rootView.findViewById(R.id.text_rating)).setText(Double.toString(data.getDouble(COL_MOVIE_RATING)));
-                ((TextView) rootView.findViewById(R.id.text_release_date)).setText(data.getString(COL_MOVIE_RELEASE_DATE));
+                originalTitleTextView.setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
+                originalTitleTextView.setBackgroundColor(Color.parseColor("#40E0D0"));
 
-                ImageView thumbnailView = (ImageView) rootView.findViewById(R.id.image_poster_thumbnail);
+                plotTextView.setText(data.getString(COL_MOVIE_PLOT));
+                ratingTextView.setText(Double.toString(data.getDouble(COL_MOVIE_RATING)));
+                dateTextView.setText(data.getString(COL_MOVIE_RELEASE_DATE));
+                separaterView.setBackgroundColor(Color.BLACK);
+
                 String posterUrlStr = POSTER_BASE_URL + POSTER_WIDTH + data.getString(COL_MOVIE_POSTER_PATH);
                 Picasso.with(getContext()).load(posterUrlStr).into(thumbnailView);
                 break;

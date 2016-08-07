@@ -89,6 +89,7 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
 
         String popMoviesJsonStr = getOnlineData(url);
         // Parse JSON result
+        if (popMoviesJsonStr == null) return null;
         getMoviesDataFromJson(popMoviesJsonStr);
         return null;
 
