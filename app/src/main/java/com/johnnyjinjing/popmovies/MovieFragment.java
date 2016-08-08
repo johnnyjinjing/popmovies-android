@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.johnnyjinjing.popmovies.data.MovieContract;
@@ -66,7 +67,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private TextView ratingTextView;
     private TextView dateTextView;
     private ImageView thumbnailView;
-    private View separaterView;
+    private View separaterTrailerView;
+    private View separaterReviewView;
+    private TextView trailerLabelView;
+    private LinearLayout trailerLinearLayout;
+    private TextView reviewLabelView;
+    private LinearLayout reviewLinearLayout;
 
 
     @Override
@@ -94,7 +100,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         ratingTextView = (TextView) rootView.findViewById(R.id.text_rating);
         dateTextView = (TextView) rootView.findViewById(R.id.text_release_date);
         thumbnailView = (ImageView) rootView.findViewById(R.id.image_poster_thumbnail);
-        separaterView = (View) rootView.findViewById(R.id.separater);
+        separaterTrailerView = rootView.findViewById(R.id.separater_trailer);
+        trailerLabelView = ((TextView) rootView.findViewById(R.id.label_trailer));
+        trailerLinearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout_trailer);
+        separaterReviewView = rootView.findViewById(R.id.separater_review);
+        reviewLabelView = ((TextView) rootView.findViewById(R.id.label_review));
+        reviewLinearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout_review);
 
         return rootView;
     }
@@ -157,19 +168,41 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 originalTitleTextView.setBackgroundColor(Color.parseColor("#40E0D0"));
 
                 plotTextView.setText(data.getString(COL_MOVIE_PLOT));
-                ratingTextView.setText(Double.toString(data.getDouble(COL_MOVIE_RATING)));
-                dateTextView.setText(data.getString(COL_MOVIE_RELEASE_DATE));
-                separaterView.setBackgroundColor(Color.BLACK);
+                ratingTextView.setText(Utility.getRating(data.getDouble(COL_MOVIE_RATING)));
+                dateTextView.setText(Utility.getYearFromDate(data.getString(COL_MOVIE_RELEASE_DATE)));
 
                 String posterUrlStr = POSTER_BASE_URL + POSTER_WIDTH + data.getString(COL_MOVIE_POSTER_PATH);
                 Picasso.with(getContext()).load(posterUrlStr).into(thumbnailView);
                 break;
 
             case TRAILER_LOADER:
-                ((TextView) rootView.findViewById(R.id.trailer_url)).setText(data.getString(COL_TRAILER_KEY));
-                break;
+                separaterTrailerView.setBackgroundColor(Color.parseColor("#151515"));
+                trailerLabelView.setText("Trailers");
+                trailerLinearLayout.removeAllViews();
+                while (true) {
+                    View trailerItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_trailer, null);
+                    ((TextView) trailerItemView.findViewById(R.id.textview_trailer))
+                            .setText(data.getString(COL_TRAILER_NAME));
+                    trailerLinearLayout.addView(trailerItemView);
+                    if (!data.moveToNext()) {
+                        return;
+                    }
+                }
             case REVIEW_LOADER:
-                ((TextView) rootView.findViewById(R.id.review_url)).setText(data.getString(COL_REIVEW_CONTENT));
+                separaterReviewView.setBackgroundColor(Color.parseColor("#151515"));
+                reviewLabelView.setText("Reviews");
+                reviewLinearLayout.removeAllViews();
+                while (true) {
+                    View reviewItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_review, null);
+                    ((TextView) reviewItemView.findViewById(R.id.textview_review_author))
+                            .setText(data.getString(COL_REIVEW_AUTHOR));
+                    ((TextView) reviewItemView.findViewById(R.id.textview_review))
+                            .setText(data.getString(COL_REIVEW_CONTENT));
+                    reviewLinearLayout.addView(reviewItemView);
+                    if (!data.moveToNext()) {
+                        return;
+                    }
+                }
             default:
                 return;
         }
