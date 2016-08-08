@@ -35,11 +35,12 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
-            android:authorities="com.johnnyjinjing.popmovies.provider"
-            android:name=".data.MovieProvider" />
+            android:name=".data.MovieProvider"
+            android:authorities="com.johnnyjinjing.popmovies.provider" />
+
     </application>
 
 </manifest>

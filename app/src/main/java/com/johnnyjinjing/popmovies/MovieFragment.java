@@ -1,6 +1,7 @@
 package com.johnnyjinjing.popmovies;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -74,6 +75,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private TextView reviewLabelView;
     private LinearLayout reviewLinearLayout;
 
+    static final String INTENT_EXTRA_TRAILER_KEY = "trailer_key";
+
+    private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?";
+    private static final String YOUTUBE_VIDEO_PARAM = "v";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -183,6 +188,17 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     View trailerItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_trailer, null);
                     ((TextView) trailerItemView.findViewById(R.id.textview_trailer))
                             .setText(data.getString(COL_TRAILER_NAME));
+
+                    final String trailerKey = data.getString(COL_TRAILER_KEY);
+                    trailerItemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Uri uri = Uri.parse(YOUTUBE_BASE_URL).buildUpon()
+                                    .appendQueryParameter(YOUTUBE_VIDEO_PARAM, trailerKey)
+                                    .build();
+                            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                        }
+                    });
                     trailerLinearLayout.addView(trailerItemView);
                     if (!data.moveToNext()) {
                         return;
