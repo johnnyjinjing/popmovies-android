@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">64dp</dimen>
+
+    <!-- dimen in movie detail page-->
+    <dimen name="movie_title_height_min">150dp</dimen>
+    <dimen name="movie_title_padding_horizontal">20dp</dimen>
+    <dimen name="movie_title_margin_bottom">5dp</dimen>
+    <dimen name="movie_title_text_size">48sp</dimen>
+
+    <dimen name="movie_info_margin_horizontal">30dp</dimen>
+
+    <dimen name="movie_poster_height_min">300dp</dimen>
+    <dimen name="movie_poster_margin_right">50dp</dimen>
+
+    <dimen name="movie_date_text_size">36dp</dimen>
+    <dimen name="movie_rate_text_size">24dp</dimen>
+
+    <dimen name="movie_plot_margin_horizontal">25dp</dimen>
+    <dimen name="movie_plot_margin_top">5dp</dimen>
+    <dimen name="movie_plot_margin_bottom">10dp</dimen>
+    <dimen name="movie_plot_text_size">20sp</dimen>
+
+    <dimen name="movie_separater_height">2dp</dimen>
+    <dimen name="movie_separater_margin_horizontal">25dp</dimen>
+    <dimen name="movie_separater_margin_vertical">10dp</dimen>
+
+    <dimen name="movie_trailer_margin_horizontal">25dp</dimen>
+    <dimen name="movie_trailer_label_text_size">32sp</dimen>
+    <dimen name="movie_trailer_content_text_size">24sp</dimen>
+    <dimen name="movie_trailer_margin_label_content">10dp</dimen>
+
+    <dimen name="movie_review_margin_horizontal">25dp</dimen>
+    <dimen name="movie_review_label_text_size">32sp</dimen>
+    <dimen name="movie_review_content_text_size">20sp</dimen>
+    <dimen name="movie_review_margin_between">10dp</dimen>
+    <dimen name="movie_review_margin_label_content">10dp</dimen>
+
+</resources>

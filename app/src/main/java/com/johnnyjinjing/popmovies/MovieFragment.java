@@ -3,7 +3,6 @@ package com.johnnyjinjing.popmovies;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -170,7 +169,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 final String POSTER_WIDTH = "w185";
 
                 originalTitleTextView.setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
-                originalTitleTextView.setBackgroundColor(Color.parseColor("#40E0D0"));
+                originalTitleTextView.setBackgroundColor(getResources().getColor(R.color.movie_title_background));
 
                 plotTextView.setText(data.getString(COL_MOVIE_PLOT));
                 ratingTextView.setText(Utility.getRating(data.getDouble(COL_MOVIE_RATING)));
@@ -181,8 +180,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 break;
 
             case TRAILER_LOADER:
-                separaterTrailerView.setBackgroundColor(Color.parseColor("#151515"));
-                trailerLabelView.setText("Trailers");
+                separaterTrailerView.setBackgroundColor(getResources().getColor(R.color.movie_seperater_background));
+                trailerLabelView.setText(getResources().getString(R.string.movie_trailer_label));
                 trailerLinearLayout.removeAllViews();
                 while (true) {
                     View trailerItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_trailer, null);
@@ -205,8 +204,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     }
                 }
             case REVIEW_LOADER:
-                separaterReviewView.setBackgroundColor(Color.parseColor("#151515"));
-                reviewLabelView.setText("Reviews");
+                separaterReviewView.setBackgroundColor(getResources().getColor(R.color.movie_seperater_background));
+                reviewLabelView.setText(getResources().getString(R.string.movie_review_label));
                 reviewLinearLayout.removeAllViews();
                 while (true) {
                     View reviewItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_review, null);
