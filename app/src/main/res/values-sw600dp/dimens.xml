@@ -29,6 +29,8 @@
     <dimen name="movie_trailer_label_text_size">32sp</dimen>
     <dimen name="movie_trailer_content_text_size">24sp</dimen>
     <dimen name="movie_trailer_margin_label_content">10dp</dimen>
+    <dimen name="movie_trailer_margin_button_content">10dp</dimen>
+    <dimen name="movie_trailer_padding_between">10dp</dimen>
 
     <dimen name="movie_review_margin_horizontal">25dp</dimen>
     <dimen name="movie_review_label_text_size">32sp</dimen>
