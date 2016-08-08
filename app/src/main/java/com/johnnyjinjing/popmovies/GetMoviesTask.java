@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Get poster and info of movies from TheMovieDB
-public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
+public class GetMoviesTask extends AsyncTask<String, Void, Void> {
 
     // Tag for debugging
     private final String LOG_TAG = GetMoviesTask.class.getSimpleName();
@@ -56,24 +56,28 @@ public class GetMoviesTask extends AsyncTask<Void, Void, Void> {
     final String TMDB_AUTHOR = "author";
     final String TMDB_TRAILER_PATH = "videos";
     final String TMDB_REVIEW_PATH = "reviews";
+    final String TMDB_QUERY_POPULARITY = "popular?";
+    final String TMDB_QUERY_RATING = "top_rated?";
 
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(String... params) {
         // Get preferences
 //            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 //            String sort = prefs.getString(getString(R.string.pref_sort_key),
 //                    getString(R.string.pref_sort_popularity));
-        String sort = "popularity";
+//        String sort = "popularity";
 
         // Construct URL for movie query
         // https://api.themoviedb.org/3/movie/popular?api_key=API_KEY
 
         String sortMethod;
-        if (sort.equals("popularity")) {
-            sortMethod = "popular?";
+        if (params[0].equals("popularity")) {
+            sortMethod = TMDB_QUERY_POPULARITY;
+        } else if (params[0].equals("rating")){
+            sortMethod = TMDB_QUERY_RATING;
         } else {
-            sortMethod = "top_rated?";
+            return null;
         }
 
         Uri uri = Uri.parse(MOVIEDB_BASE_URL + sortMethod).buildUpon()

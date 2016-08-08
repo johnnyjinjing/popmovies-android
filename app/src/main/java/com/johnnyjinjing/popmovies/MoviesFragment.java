@@ -1,8 +1,10 @@
 package com.johnnyjinjing.popmovies;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -123,13 +125,19 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void onResume() {
+        // Re-create the cursor loader in case Settings has been changed
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
         super.onResume();
         updateMovies();
     }
 
     private void updateMovies() {
+        // Get preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popularity));
         GetMoviesTask getMoviesTask = new GetMoviesTask(getContext());
-        getMoviesTask.execute();
+        getMoviesTask.execute(sort);
     }
 
     @Override
@@ -140,8 +148,17 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popularity));
+        String sortOrder = null;
+
         // Initialize the cursor loader
-        String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
+        if (sort.equals("popularity")) {
+            sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
+        } else if (sort.equals("rating")) {
+            sortOrder = MovieContract.MovieEntry.COLUMN_NAME_RATING + " DESC";
+        }
         Uri uri = MovieContract.MovieEntry.CONTENT_URI;
 
         return new CursorLoader(getActivity(), uri, null, null, null, sortOrder);

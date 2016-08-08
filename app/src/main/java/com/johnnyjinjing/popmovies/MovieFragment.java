@@ -130,7 +130,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //        }
 
         // Initialize the cursor loader
-        String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
+//        String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
 //        int movie_id = intent.getIntExtra(MovieFragment.MOVIE_ID, -1);
         Uri uri;
         if (movie_id <= 0) return null;
@@ -138,17 +138,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         switch (id) {
             case MOVIE_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieUri(movie_id);
-                return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, sortOrder);
+                return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
             case TRAILER_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieWithTrailerUri(movie_id);
 //                Log.i(LOG_TAG, uri.toString());
-                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
+                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null,
+                        MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_NAME + " ASC");
 //                uri = MovieContract.TrailerEntry.buildTrailerUri(id);
 //                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
             case REVIEW_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieWithReviewUri(movie_id);
 //                Log.i(LOG_TAG, uri.toString());
-                return new CursorLoader(getActivity(), uri, REVIEW_COLUMNS, null, null, null);
+                return new CursorLoader(getActivity(), uri, REVIEW_COLUMNS, null, null,
+                        MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_AUTHOR + " ASC");
             default:
                 return null;
         }
