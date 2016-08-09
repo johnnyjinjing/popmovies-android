@@ -10,7 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -86,13 +91,47 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String MOVIE_SELECT_STRING = MovieContract.MovieEntry.TABLE_NAME + "." +
             MovieContract.MovieEntry.COLUMN_NAME_ID + " = ? ";
 
+    private String trailerUrl;
+
 //    Cursor currentMovieCursor = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
-//        setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu, inflater);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_movie, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        ShareActionProvider mShareActionProvider =
+                (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // Attach an intent to this ShareActionProvider.  You can update this at any time,
+        // like when the user selects a new piece of data they might like to share.
+        if (mShareActionProvider != null ) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        }
+//        else {
+//            Log.d(LOG_TAG, "Share Action Provider is null?");
+//        }
+    }
+
+    private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT,
+                trailerUrl);
+        return shareIntent;
     }
 
     @Override
@@ -197,6 +236,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 separaterTrailerView.setBackgroundColor(getResources().getColor(R.color.movie_seperater_background));
                 trailerLabelView.setText(getResources().getString(R.string.movie_trailer_label));
                 trailerLinearLayout.removeAllViews();
+                trailerUrl = YOUTUBE_BASE_URL + YOUTUBE_VIDEO_PARAM + "=" + data.getString(COL_TRAILER_KEY);
+
                 while (true) {
                     View trailerItemView = LayoutInflater.from(getActivity()).inflate(R.layout.list_item_trailer, null);
                     ((TextView) trailerItemView.findViewById(R.id.textview_trailer))
