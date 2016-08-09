@@ -3,6 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorWindowBackground">#FFFFFF</color>
+    <color name="colorTextPrimary">#FFFFFF</color>
+    <color name="colorText">#000000</color>
 
     <color name="movie_title_text">#FFFFFF</color>
     <color name="movie_title_background">#40E0D0</color>

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import com.johnnyjinjing.popmovies.data.MovieContract;
 
@@ -31,6 +32,10 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private MoviesCursorAdapter moviesCursorAdapter;
 
     private static final int MOVIE_LOADER = 0;
+
+    GridView gridView;
+    private static final String SCROLL_LOCATION_KEY = "scroll_location_movies";
+    private int mPosition = GridView.INVALID_POSITION;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -77,7 +82,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
+        gridView = (GridView) rootView.findViewById(R.id.gridview_poster);
         gridView.setAdapter(moviesCursorAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -98,6 +103,10 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 }
             }
         });
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SCROLL_LOCATION_KEY)) {
+            mPosition = savedInstanceState.getInt(SCROLL_LOCATION_KEY);
+        }
 
         /* Use Movie object (in previous version)
         movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
@@ -131,6 +140,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         updateMovies();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mPosition = gridView.getFirstVisiblePosition();
+        outState.putInt(SCROLL_LOCATION_KEY, mPosition);
+        super.onSaveInstanceState(outState);
+    }
+
     private void updateMovies() {
         // Get preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -160,7 +176,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         // Initialize the cursor loader
         if (sort.equals(getResources().getString(R.string.pref_sort_popularity))) {
-            sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
+            sortOrder = MovieContract.MovieEntry.COLUMN_NAME_ID + " ASC";
         } else if (sort.equals(getResources().getString(R.string.pref_sort_rating))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_NAME_RATING + " DESC";
         } else if (sort.equals(getResources().getString(R.string.pref_sort_favorite))) {
@@ -177,6 +193,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         moviesCursorAdapter.swapCursor(cursor);
+        if (mPosition != ListView.INVALID_POSITION) {
+            gridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
