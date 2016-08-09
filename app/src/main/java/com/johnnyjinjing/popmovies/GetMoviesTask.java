@@ -72,9 +72,9 @@ public class GetMoviesTask extends AsyncTask<String, Void, Void> {
         // https://api.themoviedb.org/3/movie/popular?api_key=API_KEY
 
         String sortMethod;
-        if (params[0].equals("popularity")) {
+        if (params[0].equals(mContext.getResources().getString(R.string.pref_sort_popularity))) {
             sortMethod = TMDB_QUERY_POPULARITY;
-        } else if (params[0].equals("rating")){
+        } else if (params[0].equals(mContext.getResources().getString(R.string.pref_sort_rating))){
             sortMethod = TMDB_QUERY_RATING;
         } else {
             return null;
@@ -222,19 +222,6 @@ public class GetMoviesTask extends AsyncTask<String, Void, Void> {
             }
         }
 
-//        for (ContentValues value : trailerCvArray) {
-//            if (value.getAsString(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY) != null) {
-//                Log.d(LOG_TAG, value.getAsString(MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_KEY));
-//            }
-//        }
-
-//        if (trailerCvArray.length > 0) {
-//            mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, trailerCvArray);
-//        }
-//
-//        if (reviewCvArray.length > 0) {
-//            mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewCvArray);
-//        }
         if (trailerCvVector.size() > 0) {
             ContentValues[] trailerCvArray = new ContentValues[trailerCvVector.size()];
             trailerCvVector.toArray(trailerCvArray);

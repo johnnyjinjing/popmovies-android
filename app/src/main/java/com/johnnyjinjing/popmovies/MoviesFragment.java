@@ -136,8 +136,11 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popularity));
-        GetMoviesTask getMoviesTask = new GetMoviesTask(getContext());
-        getMoviesTask.execute(sort);
+        if (sort.equals(getResources().getString(R.string.pref_sort_popularity)) ||
+                sort.equals(getResources().getString(R.string.pref_sort_rating))) {
+            GetMoviesTask getMoviesTask = new GetMoviesTask(getContext());
+            getMoviesTask.execute(sort);
+        }
     }
 
     @Override
@@ -152,16 +155,23 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         String sort = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popularity));
         String sortOrder = null;
+        String favoriteSelection = null;
+        String[] favoriteValue = null;
 
         // Initialize the cursor loader
-        if (sort.equals("popularity")) {
+        if (sort.equals(getResources().getString(R.string.pref_sort_popularity))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
-        } else if (sort.equals("rating")) {
+        } else if (sort.equals(getResources().getString(R.string.pref_sort_rating))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_NAME_RATING + " DESC";
+        } else if (sort.equals(getResources().getString(R.string.pref_sort_favorite))) {
+            sortOrder = MovieContract.MovieEntry.COLUMN_NAME_RATING + " DESC";
+            favoriteSelection = MovieContract.MovieEntry.TABLE_NAME + "." +
+                    MovieContract.MovieEntry.COLUMN_NAME_FAVORITE + " = ? ";
+            favoriteValue = new String[]{"1"};
         }
         Uri uri = MovieContract.MovieEntry.CONTENT_URI;
 
-        return new CursorLoader(getActivity(), uri, null, null, null, sortOrder);
+        return new CursorLoader(getActivity(), uri, null, favoriteSelection, favoriteValue, sortOrder);
     }
 
     @Override

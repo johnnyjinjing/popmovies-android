@@ -9,15 +9,17 @@
 
     <string name="title_activity_settings">Settings</string>
 
+    <!-- String in Settings-->
     <string name="pref_sort_label">Sort by</string>
     <string name="pref_sort_key">sort</string>
 
     <string name="pref_sort_popularity">popularity</string>
     <string name="pref_sort_rating">rating</string>
+    <string name="pref_sort_favorite">favorite</string>
 
     <string name="pref_sort_popularity_label">Popularity</string>
     <string name="pref_sort_rating_label">Rating</string>
-    <string name="title_activity_video">VideoActivity</string>
+    <string name="pref_sort_favorite_label">Favorite</string>
 
     <!-- String in movie detail fragment-->
     <string name="movie_trailer_label">Trailers</string>

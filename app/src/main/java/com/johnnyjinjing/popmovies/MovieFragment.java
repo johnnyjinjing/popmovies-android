@@ -1,6 +1,7 @@
 package com.johnnyjinjing.popmovies;
 
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,6 +13,8 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,11 +76,17 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private LinearLayout trailerLinearLayout;
     private TextView reviewLabelView;
     private LinearLayout reviewLinearLayout;
+    private CheckBox favoriteCheckbox;
 
     static final String INTENT_EXTRA_TRAILER_KEY = "trailer_key";
 
     private static final String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?";
     private static final String YOUTUBE_VIDEO_PARAM = "v";
+
+    private static final String MOVIE_SELECT_STRING = MovieContract.MovieEntry.TABLE_NAME + "." +
+            MovieContract.MovieEntry.COLUMN_NAME_ID + " = ? ";
+
+//    Cursor currentMovieCursor = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,9 +119,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         separaterReviewView = rootView.findViewById(R.id.separater_review);
         reviewLabelView = ((TextView) rootView.findViewById(R.id.label_review));
         reviewLinearLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout_review);
-
+        favoriteCheckbox = (CheckBox) rootView.findViewById(R.id.checkbox_favorite);
         return rootView;
     }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -124,14 +134,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-//        Intent intent = getActivity().getIntent();
-//        if (intent == null || !intent.hasExtra(MovieFragment.MOVIE_ID)) {
-//            return null;
-//        }
-
-        // Initialize the cursor loader
-//        String sortOrder = MovieContract.MovieEntry.COLUMN_NAME_POPULARITY + " DESC";
-//        int movie_id = intent.getIntExtra(MovieFragment.MOVIE_ID, -1);
         Uri uri;
         if (movie_id <= 0) return null;
 
@@ -141,14 +143,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 return new CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
             case TRAILER_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieWithTrailerUri(movie_id);
-//                Log.i(LOG_TAG, uri.toString());
                 return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null,
                         MovieContract.TrailerEntry.COLUMN_NAME_TRAILER_NAME + " ASC");
-//                uri = MovieContract.TrailerEntry.buildTrailerUri(id);
-//                return new CursorLoader(getActivity(), uri, TRAILER_COLUMNS, null, null, null);
             case REVIEW_LOADER:
                 uri = MovieContract.MovieEntry.buildMovieWithReviewUri(movie_id);
-//                Log.i(LOG_TAG, uri.toString());
                 return new CursorLoader(getActivity(), uri, REVIEW_COLUMNS, null, null,
                         MovieContract.ReviewEntry.COLUMN_NAME_REVIEW_AUTHOR + " ASC");
             default:
@@ -163,8 +161,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             return;
         }
 
-        View rootView = getView();
-
         switch (loader.getId()) {
             case MOVIE_LOADER:
                 final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
@@ -172,6 +168,22 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
                 originalTitleTextView.setText(data.getString(COL_MOVIE_ORIGINAL_TITLE));
                 originalTitleTextView.setBackgroundColor(getResources().getColor(R.color.movie_title_background));
+
+                favoriteCheckbox.setVisibility(View.VISIBLE);
+                favoriteCheckbox.setChecked(data.getInt(COL_MOVIE_FAVORITE) == 1);
+                favoriteCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        ContentValues cv = new ContentValues();
+                        if (buttonView.isChecked()) {
+                            cv.put(MovieContract.MovieEntry.COLUMN_NAME_FAVORITE, "1");
+                        } else {
+                            cv.put(MovieContract.MovieEntry.COLUMN_NAME_FAVORITE, "0");
+                        }
+                        getContext().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI,
+                                cv, MOVIE_SELECT_STRING, new String[]{Long.toString(movie_id)});
+                    }
+                });
 
                 plotTextView.setText(data.getString(COL_MOVIE_PLOT));
                 ratingTextView.setText(Utility.getRating(data.getDouble(COL_MOVIE_RATING)));

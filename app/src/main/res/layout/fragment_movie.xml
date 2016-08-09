@@ -54,6 +54,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/movie_rate_text_size" />
+
+                <CheckBox android:id="@+id/checkbox_favorite"
+                    style="?android:attr/starStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
             </LinearLayout>
 
         </LinearLayout>
